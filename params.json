@@ -1,0 +1,6 @@
+{
+  "name": "YFImport",
+  "tagline": "Tool for import historical data from yahoo finance and prepare for experiments with StreamPref DSMS",
+  "body": "YFImport\r\n===\r\n\r\n**Table of Contents**\r\n\r\n- [Introduction](#introduction)\r\n- [Command Line Usage](#command-line-usage)\r\n- [File Structure](#file-structure)\r\n\r\n# Introduction\r\n\r\nYFImport is a tool for import historical data from Yahoo Finance and prepare for experiments with StreamPref DSMS\r\n\r\n# Command Line Usage\r\n\r\nThe command line parameters are:\r\n- -h/--help: Show help message\r\n- -s/--start: Start date\r\n- -e/--end: End date\r\n- -x/--exchange: Filter by exchange\r\n\r\n# File Structure\r\n\r\nThe tool creates the following file structure:\r\n- imported\r\n  - historical (directory for individual imported historical files)\r\n  - stocks.csv (table of stocks)\r\n  - trade.csv (stream of trades)\r\n  - volatility.csv (stream of volatility rate)\r\n  - transaction.csv (join of stocks, trades and volatility)\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
