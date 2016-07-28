@@ -14,20 +14,20 @@ HISTORICAL_URL = 'http://real-chart.finance.yahoo.com/table.csv?' + \
     's={ss}&a={sm}&b={sd}&c={sy}&d={em}&e={ed}&f={ey}'
 
 # Data directory
-DATA_DIR = 'yahoo_data'
+IMPORTED_DIR = 'imported'
 # Historical directory
-HISTORICAL_DIR = DATA_DIR + os.sep + 'historical'
+HISTORICAL_DIR = IMPORTED_DIR + os.sep + 'historical'
 # Directories list
-DIR_LIST = [DATA_DIR, HISTORICAL_DIR]
+DIR_LIST = [IMPORTED_DIR, HISTORICAL_DIR]
 
 # Stock file
-STOCK_FILE = DATA_DIR + os.sep + 'stocks.csv'
+STOCK_FILE = IMPORTED_DIR + os.sep + 'stocks.csv'
 # Trades file
-TRADE_FILE = DATA_DIR + os.sep + 'trade.csv'
+TRADE_FILE = IMPORTED_DIR + os.sep + 'trade.csv'
 # Volatility file
-VOLATILITY_FILE = DATA_DIR + os.sep + 'volatility.csv'
+VOLATILITY_FILE = IMPORTED_DIR + os.sep + 'volatility.csv'
 # Transactions file
-TRANSACTION_FILE = DATA_DIR + os.sep + 'transaction.csv'
+TRANSACTION_FILE = IMPORTED_DIR + os.sep + 'transaction.csv'
 
 # Number of retries to get an URL
 URL_RETRY = 10
