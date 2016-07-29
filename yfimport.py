@@ -11,10 +11,10 @@ import os
 
 # URL for historical information
 HISTORICAL_URL = 'http://real-chart.finance.yahoo.com/table.csv?' + \
-    's={ss}&a={sm}&b={sd}&c={sy}&d={em}&e={ed}&f={ey}'
+    's={ss}&a=01&b=01&c=1950&d=12&e=31&f=2050'
 
 # Data directory
-IMPORTED_DIR = 'imported'
+IMPORTED_DIR = 'yahoo_data'
 # Historical directory
 HISTORICAL_DIR = IMPORTED_DIR + os.sep + 'historical'
 # Directories list
@@ -129,7 +129,7 @@ def read_csv_file(filename, att_list):
     return stock_list
 
 
-def get_all_historical(stocks_list, start_date, end_date):
+def get_all_historical(stocks_list):
     '''
     Get historical data for a stock list
     '''
@@ -138,22 +138,17 @@ def get_all_historical(stocks_list, start_date, end_date):
         print 'Getting historical data for ' + symbol
         filename = HISTORICAL_DIR + os.sep + symbol + '.csv'
         if not os.path.isfile(filename):
-            get_historical_data(symbol, filename, start_date, end_date)
+            get_historical_data(symbol, filename)
         else:
             print 'Using cached download for ' + symbol
 
 
-def get_historical_data(symbol, filename, start_date, end_date):
+def get_historical_data(symbol, filename):
     '''
     Get historical data from a stock list
     '''
     print 'Getting historical for ' + symbol
-    hist_url = \
-        HISTORICAL_URL.format(ss=symbol,
-                              sy=start_date.year, sm=start_date.month,
-                              sd=start_date.day,
-                              ey=end_date.year, em=end_date.month,
-                              ed=end_date.day)
+    hist_url = HISTORICAL_URL.format(ss=symbol)
     hist_content = read_url(hist_url)
     hist_content = hist_content.replace(',', '|').lower()
     out_file = open(filename, 'w')
@@ -370,7 +365,7 @@ def main():
     stock_list = read_csv_file(STOCK_FILE, STOCK_HEADER)
     if args.exchange:
         stock_list = filter_by_exchange(stock_list, args.exchange)
-    get_all_historical(stock_list, start_date, end_date)
+    get_all_historical(stock_list)
     get_streams(stock_list, start_date, end_date)
     print 'WARNING: The stream files must be sorted by timestamp'
 
