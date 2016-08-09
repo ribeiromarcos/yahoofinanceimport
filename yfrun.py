@@ -353,7 +353,7 @@ def get_arguments(print_help=False):
     Get arguments
     '''
     import argparse
-    parser = argparse.ArgumentParser('Experiments')
+    parser = argparse.ArgumentParser('YFRun')
     parser.add_argument('-g', '--gen', action="store_true",
                         default=False,
                         help='Generate files')

@@ -330,7 +330,7 @@ def get_arguments(print_help=False):
     Get arguments
     '''
     import argparse
-    parser = argparse.ArgumentParser('yfimport')
+    parser = argparse.ArgumentParser('YFImport')
     parser.add_argument('-s', '--start', action="store",
                         help='Start date yyyy-mm-dd' +
                         '(default: 365 days before end date)')
