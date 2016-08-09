@@ -14,6 +14,7 @@ from yfimport import TRANSACTION_FILE
 # Experiment parameters
 RAN = 'range'
 SLI = 'slide'
+TOPK = 'topk'
 ALGORITHM = 'algorithm'
 
 # Result fields
@@ -22,15 +23,18 @@ MEMORY = 'memory'
 
 # List of ranges
 RANGE_LIST = [2, 3, 4, 5, 6]
-
 # Default range
 RANGE_DEFAULT = 4
 
 # List of slides
 SLIDE_LIST = [1, 2, 3, 4]
-
 # Default slide
 SLIDE_DEFAULT = 1
+
+# Top-k variation (-1 for best operator)
+TOPK_LIST = [-1, 35, 70, 140, 280]
+# Default top-k
+TOPK_DEFAULT = -1
 
 # List of algorithms
 ALGORITHM_LIST = ['inc_ancestors', 'inc_graph', 'inc_partition', 'partition']
@@ -69,14 +73,14 @@ REGISTER STREAM transactions (symbol STRING, sector STRING, country STRING,
 INPUT '{dfile}';
 
 
-REGISTER QUERY range{ran}slide{sli}
-INPUT '{qdir}/range{ran}slide{sli}.cql'
+REGISTER QUERY preferred_stocks
+INPUT '{qdir}/{qfile}.cql'
 ;
 '''
 
 # Default query
 QUERY_DEFAULT = '''
-SELECT *
+SELECT {topk} *
 FROM transactions [RANGE {ran} SECOND, SLIDE {sli} SECOND]
 ACCORDING TO PREFERENCES
 IF sector = 'Basic Materials' THEN rate < 0.25 BETTER rate >= 0.25
@@ -98,9 +102,9 @@ def gen_env_file(experiment_conf):
     '''
     Generate environment file for range and slide
     '''
-    text = REGISTER_DEFAULT.format(ran=experiment_conf[RAN],
-                                   sli=experiment_conf[SLI],
-                                   qdir=QUERY_DIR,
+    exp_id = get_experiment_id(experiment_conf)
+    text = REGISTER_DEFAULT.format(qdir=QUERY_DIR,
+                                   qfile=exp_id,
                                    dfile=DATA_FILE)
     filename = ENV_DIR + os.sep + get_experiment_id(experiment_conf) + '.env'
     out_file = open(filename, 'w')
@@ -112,7 +116,11 @@ def gen_query_file(experiment_conf):
     '''
     Generate query file for range and slide
     '''
-    text = QUERY_DEFAULT.format(ran=experiment_conf[RAN],
+    topk_option = ''
+    if experiment_conf[TOPK] != -1:
+        topk_option = 'TOPK(' + str(experiment_conf[TOPK]) + ')'
+    text = QUERY_DEFAULT.format(topk=topk_option,
+                                ran=experiment_conf[RAN],
                                 sli=experiment_conf[SLI])
     filename = QUERY_DIR + os.sep + get_experiment_id(experiment_conf) + '.cql'
     out_file = open(filename, 'w')
@@ -141,7 +149,11 @@ def get_experiment_id(experiment_conf):
     '''
     Return the ID of an experiment
     '''
-    return RAN + str(experiment_conf[RAN]) + SLI + str(experiment_conf[SLI])
+    operation = 'best'
+    if experiment_conf[TOPK] != -1:
+        operation = TOPK + str(experiment_conf[TOPK])
+    return RAN + str(experiment_conf[RAN]) + \
+        SLI + str(experiment_conf[SLI]) + operation
 
 
 def get_detail_file(algorithm, experiment_id, count):
@@ -194,7 +206,9 @@ def summarize_all():
     variation = {}
     variation[RAN] = RANGE_LIST
     variation[SLI] = SLIDE_LIST
-    default_values = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT}
+    variation[TOPK] = TOPK_LIST
+    default_values = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT,
+                      TOPK: TOPK_DEFAULT}
     for parameter in variation:
         summarize(parameter, variation[parameter], default_values)
 
@@ -286,7 +300,7 @@ def gen_experiment_list():
     '''
     exp_list = []
     # Default parameters configuration
-    def_conf = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT}
+    def_conf = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, TOPK: TOPK_DEFAULT}
     # Attributes number variation (no deletions)
     for range_val in RANGE_LIST:
         conf = def_conf.copy()
@@ -295,6 +309,10 @@ def gen_experiment_list():
     for slide_val in SLIDE_LIST:
         conf = def_conf.copy()
         conf[SLI] = slide_val
+        add_experiment(exp_list, conf)
+    for topk_value in TOPK_LIST:
+        conf = def_conf.copy()
+        conf[TOPK] = topk_value
         add_experiment(exp_list, conf)
     return exp_list
 
@@ -320,7 +338,7 @@ def confidence_interval_all():
     Calculate confidence interval for all summarized results
     '''
     # Deletions and insertions
-    par_list = [RAN, SLI]
+    par_list = [RAN, SLI, TOPK]
     for parameter in par_list:
         in_file = SUMMARY_DIR + os.sep + 'runtime_' + parameter + '.csv'
         out_file = RESULT_DIR + os.sep + 'runtime_' + parameter + '.csv'
@@ -363,18 +381,16 @@ def main():
     if args.gen:
         print 'Generating files'
         gen_files(exp_list)
-        exit(0)
-    if args.run:
+    elif args.run:
         print 'Running experiments'
         run_experiments(exp_list)
-        exit(0)
-    if args.summarize:
+    elif args.summarize:
         print 'Summarizing results'
         summarize_all()
         print 'Calculating confidence intervals'
         confidence_interval_all()
-        exit(0)
-    get_arguments(True)
+    else:
+        get_arguments(True)
 
 
 if __name__ == '__main__':

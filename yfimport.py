@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 
 '''
@@ -362,9 +362,14 @@ def main():
         start_date = get_date(args.start)
         if start_date is None:
             return
+    print 'Reading stocks'
     stock_list = read_csv_file(STOCK_FILE, STOCK_HEADER)
+    print str(len(stock_list)) + ' read'
     if args.exchange:
+        print 'Filtering stocks by exchange ' + args.exchange
         stock_list = filter_by_exchange(stock_list, args.exchange)
+        print str(len(stock_list)) + ' filtered'
+    print 'Getting historical data'
     get_all_historical(stock_list)
     get_streams(stock_list, start_date, end_date)
     print 'WARNING: The stream files must be sorted by timestamp'
