@@ -58,3 +58,6 @@ The values such parameters are:
 - Slide:
   - Variation: 1, 2, 3, 4
   - Default: 4
+- Top-k:
+  - Variation: 1, 35, 70, 140, 280
+
