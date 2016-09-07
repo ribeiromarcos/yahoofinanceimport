@@ -14,7 +14,9 @@ from yfimport import TRANSACTION_FILE
 # Experiment parameters
 RAN = 'range'
 SLI = 'slide'
-TOPK = 'topk'
+OPE = 'operator'
+TOPK = 'top'
+BEST = 'best'
 ALGORITHM = 'algorithm'
 
 # Result fields
@@ -31,10 +33,15 @@ SLIDE_LIST = [1, 2, 3, 4]
 # Default slide
 SLIDE_DEFAULT = 1
 
+# List of operator
+OPERATOR_LIST = [BEST, TOPK]
+# Default operator
+OPERATOR_DEFAULT = BEST
+
 # Top-k variation (-1 for best operator)
-TOPK_LIST = [-1, 35, 70, 140, 280]
+TOPK_LIST = [1, 35, 70, 140, 280]
 # Default top-k
-TOPK_DEFAULT = -1
+TOPK_DEFAULT = 1
 
 # List of algorithms
 ALGORITHM_LIST = ['inc_ancestors', 'inc_graph', 'inc_partition', 'partition']
@@ -117,7 +124,7 @@ def gen_query_file(experiment_conf):
     Generate query file for range and slide
     '''
     topk_option = ''
-    if experiment_conf[TOPK] != -1:
+    if experiment_conf[OPE] == TOPK:
         topk_option = 'TOPK(' + str(experiment_conf[TOPK]) + ')'
     text = QUERY_DEFAULT.format(topk=topk_option,
                                 ran=experiment_conf[RAN],
@@ -150,7 +157,7 @@ def get_experiment_id(experiment_conf):
     Return the ID of an experiment
     '''
     operation = 'best'
-    if experiment_conf[TOPK] != -1:
+    if experiment_conf[OPE] == TOPK:
         operation = TOPK + str(experiment_conf[TOPK])
     return RAN + str(experiment_conf[RAN]) + \
         SLI + str(experiment_conf[SLI]) + operation
@@ -203,12 +210,16 @@ def summarize_all():
     '''
     Summarize all results
     '''
+    # Summarize experiments for BEST operator
     variation = {}
     variation[RAN] = RANGE_LIST
     variation[SLI] = SLIDE_LIST
-    variation[TOPK] = TOPK_LIST
-    default_values = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT,
-                      TOPK: TOPK_DEFAULT}
+    default_values = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, OPE: BEST}
+    for parameter in variation:
+        summarize(parameter, variation[parameter], default_values)
+    # Summarize experiments for TOPK operator
+    variation = {TOPK: TOPK_LIST}
+    default_values = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, OPE: TOPK}
     for parameter in variation:
         summarize(parameter, variation[parameter], default_values)
 
@@ -299,8 +310,8 @@ def gen_experiment_list():
     Generate the list of experiments
     '''
     exp_list = []
-    # Default parameters configuration
-    def_conf = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, TOPK: TOPK_DEFAULT}
+    # Default parameters configuration (for BEST operator)
+    def_conf = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, OPE: BEST}
     # Attributes number variation (no deletions)
     for range_val in RANGE_LIST:
         conf = def_conf.copy()
@@ -310,6 +321,8 @@ def gen_experiment_list():
         conf = def_conf.copy()
         conf[SLI] = slide_val
         add_experiment(exp_list, conf)
+    # Default parameters configuration (for TOPK operator)
+    def_conf = {RAN: RANGE_DEFAULT, SLI: SLIDE_DEFAULT, OPE: TOPK}
     for topk_value in TOPK_LIST:
         conf = def_conf.copy()
         conf[TOPK] = topk_value
