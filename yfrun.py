@@ -40,8 +40,6 @@ OPERATOR_DEFAULT = BEST
 
 # Top-k variation (-1 for best operator)
 TOPK_LIST = [1, 35, 70, 140, 280]
-# Default top-k
-TOPK_DEFAULT = 1
 
 # List of algorithms
 ALGORITHM_LIST = ['inc_ancestors', 'inc_graph', 'inc_partition', 'partition']
