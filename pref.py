@@ -1,7 +1,7 @@
 #!/usr/bin/python -u
 # -*- coding: utf-8 -*-
 '''
-Module for generation of environments for experiments over yahoo finance data
+Module for generation of environments for experiments over Yahoo finance data
 using BEST and TOPK operators
 '''
 
